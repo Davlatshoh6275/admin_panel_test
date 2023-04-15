@@ -6,10 +6,7 @@ import Fade from "@mui/material/Fade";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import SendIcon from "@mui/icons-material/Send";
 
 const style = {
   position: "absolute",
@@ -46,37 +43,30 @@ export default function TransitionsModal({ open, handleClose }) {
             </Typography>
             <Box
               sx={{
-                width: 500,
                 maxWidth: "100%",
                 margin: "25px 0",
               }}
             >
               <TextField fullWidth label="Name Person" id="NameFile" />
             </Box>
-            <Box
+
+            <Button
+              variant="text"
+              component="label"
               sx={{
-                width: 500,
+                width: "600px",
+                height: "50px",
                 maxWidth: "100%",
-                margin: "25px 0",
+                backgroundColor: "#2D2D2D",
+                color: "grey",
+                "& > :not(style)": { m: 1 },
+                "& > :hover ": { backgroundColor: "grey" },
+                margin: "0 0 25px 0",
               }}
             >
-              <Button
-                variant="text"
-                component="label"
-                sx={{
-                  width: "500px",
-                  height: "50px",
-                  maxWidth: "100%",
-                  backgroundColor: "#2D2D2D",
-                  color: "grey",
-                  "& > :not(style)": { m: 1 },
-                  "& > :hover ": { backgroundColor: "grey" },
-                }}
-              >
-                Upload File
-                <input type="file" hidden />
-              </Button>
-            </Box>
+              Upload File
+              <input type="file" hidden />
+            </Button>
             <Box
               sx={{
                 display: {
@@ -89,7 +79,7 @@ export default function TransitionsModal({ open, handleClose }) {
               <Button
                 variant="text"
                 sx={{
-                  width: "500px",
+                  width: "600px",
                   height: "50px",
                   maxWidth: "100%",
                   backgroundColor: "#2D2D2D",
@@ -97,10 +87,10 @@ export default function TransitionsModal({ open, handleClose }) {
                   "& > :not(style)": { m: 1 },
                   "& > :hover ": { backgroundColor: "grey" },
                 }}
+                endIcon={<SendIcon />}
               >
                 Send
               </Button>
-              
             </Box>
           </Box>
         </Fade>

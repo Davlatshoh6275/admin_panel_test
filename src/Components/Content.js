@@ -24,6 +24,7 @@ import { visuallyHidden } from "@mui/utils";
 
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 import Modal from "./Modal";
 
@@ -221,6 +222,9 @@ function EnhancedTableToolbar(props) {
         </Typography>
       )}
 
+      <IconButton>
+        <UploadFileIcon />
+      </IconButton>
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton>
@@ -483,10 +487,7 @@ export default function Content() {
           </Box>
         </Box>
       </Box>
-      <Modal
-        open={open}
-        handleClose={handleClose}
-      />
+      <Modal open={open} handleClose={handleClose} />
     </Box>
   );
 }
