@@ -25,7 +25,7 @@ import { visuallyHidden } from "@mui/utils";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 
-import Modal from "./Modal"
+import Modal from "./Modal";
 
 function createData(name, calories, fat, carbs, protein) {
   return {
@@ -252,6 +252,13 @@ export default function Content() {
   const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
   const [paddingHeight, setPaddingHeight] = React.useState(0);
 
+  // modal
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  //
   React.useEffect(() => {
     let rowsOnMount = stableSort(
       rows,
@@ -451,20 +458,35 @@ export default function Content() {
           />
         </Paper>
 
-        <Box sx={{width: "100%", display: "flex", justifyContent: "space-between"}}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <FormControlLabel
             control={<Switch checked={dense} onChange={handleChangeDense} />}
             label="Dense padding"
           />
 
           <Box sx={{ "& > :not(style)": { m: 1 } }}>
-            <Fab sx={{backgroundColor: "grey"}} size="medium" color="grey" aria-label="add" >
-              <AddIcon   />
+            <Fab
+              onClick={handleOpen}
+              sx={{ backgroundColor: "grey" }}
+              size="medium"
+              color="grey"
+              aria-label="add"
+            >
+              <AddIcon />
             </Fab>
           </Box>
         </Box>
       </Box>
-      <Modal/>
+      <Modal
+        open={open}
+        handleClose={handleClose}
+      />
     </Box>
   );
 }
