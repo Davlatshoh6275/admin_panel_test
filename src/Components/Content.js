@@ -39,21 +39,21 @@ function createData(name, calories, fat, carbs, protein) {
   };
 }
 
-const rows = [
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Donut", 452, 25.0, 51, 4.9),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Honeycomb", 408, 3.2, 87, 6.5),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Jelly Bean", 375, 0.0, 94, 0.0),
-  createData("KitKat", 518, 26.0, 65, 7.0),
-  createData("Lollipop", 392, 0.2, 98, 0.0),
-  createData("Marshmallow", 318, 0, 81, 2.0),
-  createData("Nougat", 360, 19.0, 9, 37.0),
-  createData("Oreo", 437, 18.0, 63, 4.0),
-];
+// const rows = [
+//   createData("Cupcake", 305, 3.7, 67, 4.3),
+//   createData("Donut", 452, 25.0, 51, 4.9),
+//   createData("Eclair", 262, 16.0, 24, 6.0),
+//   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
+//   createData("Gingerbread", 356, 16.0, 49, 3.9),
+//   createData("Honeycomb", 408, 3.2, 87, 6.5),
+//   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
+//   createData("Jelly Bean", 375, 0.0, 94, 0.0),
+//   createData("KitKat", 518, 26.0, 65, 7.0),
+//   createData("Lollipop", 392, 0.2, 98, 0.0),
+//   createData("Marshmallow", 318, 0, 81, 2.0),
+//   createData("Nougat", 360, 19.0, 9, 37.0),
+//   createData("Oreo", 437, 18.0, 63, 4.0),
+// ];
 
 
 function descendingComparator(a, b, orderBy) {
@@ -258,6 +258,23 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function Content( { value }) {
+
+  const rows = [
+      createData("Cupcake", 305, 3.7, 67, 4.3),
+      createData("Donut", 452, 25.0, 51, 4.9),
+      createData("Eclair", 262, 16.0, 24, 6.0),
+      createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
+      createData("Gingerbread", 356, 16.0, 49, 3.9),
+      createData("Honeycomb", 408, 3.2, 87, 6.5),
+      createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
+      createData("Jelly Bean", 375, 0.0, 94, 0.0),
+      createData("KitKat", 518, 26.0, 65, 7.0),
+      createData("Lollipop", 392, 0.2, 98, 0.0),
+      createData("Marshmallow", 318, 0, 81, 2.0),
+      createData("Nougat", 360, 19.0, 9, 37.0),
+      createData("Oreo", 437, 18.0, 63, 4.0),
+    ];
+
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
   const [selected, setSelected] = React.useState([]);
@@ -269,11 +286,11 @@ export default function Content( { value }) {
 
 
 
-  const filteredRows = rows.filter(row => {
-    return row.name.toLowerCase().includes(value.toLowerCase())
+
+  const filter = rows.filter(item => {
+    return item.name.toLowerCase().includes(value.toLowerCase())
   })
 
-  console.log(filteredRows);
 
 
   // modal
@@ -286,7 +303,7 @@ export default function Content( { value }) {
   React.useEffect(() => {
     let rowsOnMount = stableSort(
       // rows,
-      filteredRows,
+      filter,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
 
@@ -296,7 +313,7 @@ export default function Content( { value }) {
     );
 
     setVisibleRows(rowsOnMount);
-  }, []);
+  }, [filter]);
 
   const handleRequestSort = React.useCallback(
     (event, newOrderBy) => {
@@ -307,7 +324,7 @@ export default function Content( { value }) {
 
       const sortedRows = stableSort(
         // rows,
-        filteredRows,
+        filter,
         getComparator(toggledOrder, newOrderBy)
       );
       const updatedRows = sortedRows.slice(
@@ -322,7 +339,7 @@ export default function Content( { value }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = filteredRows.map((n) => n.name);
+      const newSelected = filter.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
@@ -353,7 +370,7 @@ export default function Content( { value }) {
     (event, newPage) => {
       setPage(newPage);
 
-      const sortedRows = stableSort(filteredRows, getComparator(order, orderBy));
+      const sortedRows = stableSort(filter, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         newPage * rowsPerPage,
         newPage * rowsPerPage + rowsPerPage
@@ -364,7 +381,7 @@ export default function Content( { value }) {
       // Avoid a layout jump when reaching the last page with empty rows.
       const numEmptyRows =
         newPage > 0
-          ? Math.max(0, (1 + newPage) * rowsPerPage - filteredRows.length)
+          ? Math.max(0, (1 + newPage) * rowsPerPage - rows.length)
           : 0;
 
       const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
@@ -380,7 +397,7 @@ export default function Content( { value }) {
 
       setPage(0);
 
-      const sortedRows = stableSort(filteredRows, getComparator(order, orderBy));
+      const sortedRows = stableSort(filter, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         0 * updatedRowsPerPage,
         0 * updatedRowsPerPage + updatedRowsPerPage
@@ -417,7 +434,7 @@ export default function Content( { value }) {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={filteredRows.length}
+                rowCount={rows.length}
               />
               <TableBody>
                 {visibleRows
@@ -453,10 +470,10 @@ export default function Content( { value }) {
                           >
                             {row.name}
                           </TableCell>
-                          <TableCell align="right">{filteredRows.calories}</TableCell>
-                          <TableCell align="right">{filteredRows.fat}</TableCell>
-                          <TableCell align="right">{filteredRows.carbs}</TableCell>
-                          <TableCell align="right">{filteredRows.protein}</TableCell>
+                          <TableCell align="right">{filter.calories}</TableCell>
+                          <TableCell align="right">{filter.fat}</TableCell>
+                          <TableCell align="right">{filter.carbs}</TableCell>
+                          <TableCell align="right">{filter.protein}</TableCell>
                         </TableRow>
                       );
                     })
@@ -476,7 +493,7 @@ export default function Content( { value }) {
           <TablePagination
             rowsPerPageOptions={[10, 15, 25]}
             component="div"
-            count={filteredRows.length}
+            count={rows.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
