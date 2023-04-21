@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useState} from "react"
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -54,6 +55,7 @@ const rows = [
   createData("Oreo", 437, 18.0, 63, 4.0),
 ];
 
+
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -63,6 +65,7 @@ function descendingComparator(a, b, orderBy) {
   }
   return 0;
 }
+
 
 function getComparator(order, orderBy) {
   return order === "desc"
@@ -136,6 +139,10 @@ function EnhancedTableHead(props) {
     onRequestSort(event, newOrderBy);
   };
 
+
+
+
+
   return (
     <TableHead>
       <TableRow>
@@ -186,7 +193,11 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
+
+
+
   const { numSelected } = props;
+
 
   return (
     <Toolbar
@@ -227,7 +238,7 @@ function EnhancedTableToolbar(props) {
       </IconButton>
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -246,7 +257,7 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function Content() {
+export default function Content( { value }) {
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
   const [selected, setSelected] = React.useState([]);
@@ -255,6 +266,15 @@ export default function Content() {
   const [visibleRows, setVisibleRows] = React.useState(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
   const [paddingHeight, setPaddingHeight] = React.useState(0);
+
+
+
+  const filteredRows = rows.filter(row => {
+    return row.name.toLowerCase().includes(value.toLowerCase())
+  })
+
+  console.log(filteredRows);
+
 
   // modal
 
@@ -265,7 +285,8 @@ export default function Content() {
   //
   React.useEffect(() => {
     let rowsOnMount = stableSort(
-      rows,
+      // rows,
+      filteredRows,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
 
@@ -285,7 +306,8 @@ export default function Content() {
       setOrderBy(newOrderBy);
 
       const sortedRows = stableSort(
-        rows,
+        // rows,
+        filteredRows,
         getComparator(toggledOrder, newOrderBy)
       );
       const updatedRows = sortedRows.slice(
@@ -300,7 +322,7 @@ export default function Content() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = filteredRows.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
@@ -331,7 +353,7 @@ export default function Content() {
     (event, newPage) => {
       setPage(newPage);
 
-      const sortedRows = stableSort(rows, getComparator(order, orderBy));
+      const sortedRows = stableSort(filteredRows, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         newPage * rowsPerPage,
         newPage * rowsPerPage + rowsPerPage
@@ -342,7 +364,7 @@ export default function Content() {
       // Avoid a layout jump when reaching the last page with empty rows.
       const numEmptyRows =
         newPage > 0
-          ? Math.max(0, (1 + newPage) * rowsPerPage - rows.length)
+          ? Math.max(0, (1 + newPage) * rowsPerPage - filteredRows.length)
           : 0;
 
       const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
@@ -358,7 +380,7 @@ export default function Content() {
 
       setPage(0);
 
-      const sortedRows = stableSort(rows, getComparator(order, orderBy));
+      const sortedRows = stableSort(filteredRows, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         0 * updatedRowsPerPage,
         0 * updatedRowsPerPage + updatedRowsPerPage
@@ -395,7 +417,7 @@ export default function Content() {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+                rowCount={filteredRows.length}
               />
               <TableBody>
                 {visibleRows
@@ -431,10 +453,10 @@ export default function Content() {
                           >
                             {row.name}
                           </TableCell>
-                          <TableCell align="right">{row.calories}</TableCell>
-                          <TableCell align="right">{row.fat}</TableCell>
-                          <TableCell align="right">{row.carbs}</TableCell>
-                          <TableCell align="right">{row.protein}</TableCell>
+                          <TableCell align="right">{filteredRows.calories}</TableCell>
+                          <TableCell align="right">{filteredRows.fat}</TableCell>
+                          <TableCell align="right">{filteredRows.carbs}</TableCell>
+                          <TableCell align="right">{filteredRows.protein}</TableCell>
                         </TableRow>
                       );
                     })
@@ -454,7 +476,7 @@ export default function Content() {
           <TablePagination
             rowsPerPageOptions={[10, 15, 25]}
             component="div"
-            count={rows.length}
+            count={filteredRows.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -156,6 +157,7 @@ export default function Navigation() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -177,6 +179,13 @@ export default function Navigation() {
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
     </Menu>
   );
+
+const [value, setValue] = useState('')
+
+
+
+
+
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -230,6 +239,7 @@ export default function Navigation() {
                     sx={{
                       padding: "5px 0px",
                     }}
+                    onChange={(event) => setValue(event.target.value)}
                   />
                 </Search>
                 <IconButton
@@ -277,7 +287,7 @@ export default function Navigation() {
         </Drawer>
         <Main open={open}>
           <DrawerHeader />
-          <Content />
+          <Content value={value} />
         </Main>
       </ThemeProvider>
     </Box>
