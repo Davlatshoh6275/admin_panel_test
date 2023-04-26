@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
+import ProductSlice from "./card/Product";
 
 export const store = configureStore({
-    reducer: {
-        files: ''
-    },
-  });
-  
+  reducer: {
+    products: ProductSlice,
+  },
+});

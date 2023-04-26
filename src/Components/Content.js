@@ -26,34 +26,20 @@ import { visuallyHidden } from "@mui/utils";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProducts, selectAllProducts } from "../Redux/card/Product";
 
 import Modal from "./Modal";
 
-function createData(name, calories, fat, carbs, protein) {
+function createData(name, calories, fat, carbs) {
   return {
     name,
     calories,
     fat,
     carbs,
-    protein,
   };
 }
 
-// const rows = [
-//   createData("Cupcake", 305, 3.7, 67, 4.3),
-//   createData("Donut", 452, 25.0, 51, 4.9),
-//   createData("Eclair", 262, 16.0, 24, 6.0),
-//   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-//   createData("Gingerbread", 356, 16.0, 49, 3.9),
-//   createData("Honeycomb", 408, 3.2, 87, 6.5),
-//   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-//   createData("Jelly Bean", 375, 0.0, 94, 0.0),
-//   createData("KitKat", 518, 26.0, 65, 7.0),
-//   createData("Lollipop", 392, 0.2, 98, 0.0),
-//   createData("Marshmallow", 318, 0, 81, 2.0),
-//   createData("Nougat", 360, 19.0, 9, 37.0),
-//   createData("Oreo", 437, 18.0, 63, 4.0),
-// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -92,32 +78,27 @@ const headCells = [
     id: "name",
     numeric: false,
     disablePadding: true,
-    label: "Dessert (100g serving)",
+    label: "Id",
   },
   {
     id: "calories",
     numeric: true,
     disablePadding: false,
-    label: "Calories",
+    label: "User ID",
   },
   {
     id: "fat",
     numeric: true,
     disablePadding: false,
-    label: "Fat (g)",
+    label: "Body",
   },
   {
     id: "carbs",
     numeric: true,
     disablePadding: false,
-    label: "Carbs (g)",
+    label: "Title",
   },
-  {
-    id: "protein",
-    numeric: true,
-    disablePadding: false,
-    label: "Protein (g)",
-  },
+
 ];
 
 const DEFAULT_ORDER = "asc";
@@ -219,7 +200,7 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
-          Nutrition
+          Files
         </Typography>
       )}
 
@@ -248,21 +229,6 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function Content({ value }) {
-  const rows = [
-    createData("Cupcake", 305, 3.7, 67, 4.3),
-    createData("Donut", 452, 25.0, 51, 4.9),
-    createData("Eclair", 262, 16.0, 24, 6.0),
-    createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-    createData("Gingerbread", 356, 16.0, 49, 3.9),
-    createData("Honeycomb", 408, 3.2, 87, 6.5),
-    createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-    createData("Jelly Bean", 375, 0.0, 94, 0.0),
-    createData("KitKat", 518, 26.0, 65, 7.0),
-    createData("Lollipop", 392, 0.2, 98, 0.0),
-    createData("Marshmallow", 318, 0, 81, 2.0),
-    createData("Nougat", 360, 19.0, 9, 37.0),
-    createData("Oreo", 437, 18.0, 63, 4.0),
-  ];
 
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
@@ -273,9 +239,17 @@ export default function Content({ value }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
   const [paddingHeight, setPaddingHeight] = React.useState(0);
 
-  const filter = rows.filter((item) => {
-    return item.name.toLowerCase().includes(value.toLowerCase());
+  console.log(selected);
+
+  const ArrayFiles = useSelector(selectAllProducts);
+
+  const filter = ArrayFiles.filter((item) => {
+    return item.body.toLowerCase().includes(value.toLowerCase());
   });
+
+
+  const dispatch = useDispatch();
+
 
   // modal
 
@@ -286,8 +260,8 @@ export default function Content({ value }) {
   //
   React.useEffect(() => {
     let rowsOnMount = stableSort(
-      // rows,
       filter,
+      // ArrayFiles,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
 
@@ -296,8 +270,14 @@ export default function Content({ value }) {
       0 * DEFAULT_ROWS_PER_PAGE + DEFAULT_ROWS_PER_PAGE
     );
 
-    setVisibleRows(rowsOnMount);
-  }, [filter]);
+    if (ArrayFiles.length === 0) {
+      dispatch(fetchProducts());
+    }
+    
+    setVisibleRows(rowsOnMount)
+  }, [...filter]);
+
+  console.log(filter);
 
   const handleRequestSort = React.useCallback(
     (event, newOrderBy) => {
@@ -307,8 +287,8 @@ export default function Content({ value }) {
       setOrderBy(newOrderBy);
 
       const sortedRows = stableSort(
-        // rows,
         filter,
+        // ArrayFiles,
         getComparator(toggledOrder, newOrderBy)
       );
       const updatedRows = sortedRows.slice(
@@ -323,7 +303,7 @@ export default function Content({ value }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = filter.map((n) => n.name);
+      const newSelected = filter.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -332,6 +312,7 @@ export default function Content({ value }) {
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
+    console.log(name);
     let newSelected = [];
 
     if (selectedIndex === -1) {
@@ -365,7 +346,7 @@ export default function Content({ value }) {
       // Avoid a layout jump when reaching the last page with empty rows.
       const numEmptyRows =
         newPage > 0
-          ? Math.max(0, (1 + newPage) * rowsPerPage - rows.length)
+          ? Math.max(0, (1 + newPage) * rowsPerPage - filter.length)
           : 0;
 
       const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
@@ -418,22 +399,22 @@ export default function Content({ value }) {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+                rowCount={filter.length}
               />
               <TableBody>
-                {visibleRows
-                  ? visibleRows.map((row, index) => {
+                {filter
+                  ? filter.map((row, index) => {
                       const isItemSelected = isSelected(row.name);
                       const labelId = `enhanced-table-checkbox-${index}`;
 
                       return (
                         <TableRow
                           hover
-                          onClick={(event) => handleClick(event, row.name)}
+                          onClick={(event) => handleClick(event, row.id)}
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
-                          key={row.name}
+                          key={row.id}
                           selected={isItemSelected}
                           sx={{ cursor: "pointer" }}
                         >
@@ -452,12 +433,11 @@ export default function Content({ value }) {
                             scope="row"
                             padding="none"
                           >
-                            {row.name}
+                            {row.id}
                           </TableCell>
-                          <TableCell align="right">{filter.calories}</TableCell>
-                          <TableCell align="right">{filter.fat}</TableCell>
-                          <TableCell align="right">{filter.carbs}</TableCell>
-                          <TableCell align="right">{filter.protein}</TableCell>
+                          <TableCell align="right">{row.userId}</TableCell>
+                          <TableCell align="right">{row.body}</TableCell>
+                          <TableCell align="right">{row.title}</TableCell>
                         </TableRow>
                       );
                     })
@@ -477,7 +457,7 @@ export default function Content({ value }) {
           <TablePagination
             rowsPerPageOptions={[10, 15, 25]}
             component="div"
-            count={rows.length}
+            count={filter.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
