@@ -15,6 +15,16 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+export const deleteProducts = createAsyncThunk(
+  "products/deleteProducts",
+  async (id, { dispatch }) => {
+    for (let i of id) {
+      const { data } = await axios.delete(`${Base_Url}/${i}`);
+      return removeProduct(data)
+    }
+  }
+);
+
 const ProductSlice = createSlice({
   name: "products",
   initialState: {
@@ -24,28 +34,47 @@ const ProductSlice = createSlice({
 
   reducers: {
     removeProduct(state, action) {
-      state.products = state.products.filter(
-        (products) => products._id !== action.payload._id
-      );
+      for (let i of action.payload) {
+        state.products = state.products.filter(
+          (products) => products._id !== i.id
+        );
+      }
+
+      console.log(action.payload);
+      console.log(state);
     },
   },
 
-    extraReducers(builder) {
-      builder
+  extraReducers(builder) {
+    builder
 
-        .addCase(fetchProducts.pending, (state, action) => {
-          state.status = "loading";
-        })
-        .addCase(fetchProducts.fulfilled, (state, action) => {
-          state.status = "success";
-          state.products = [...action.payload];
-        })
-        .addCase(fetchProducts.rejected, (state, action) => {
-          state.status = "fail";
-        });
-    },
+      .addCase(fetchProducts.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.status = "success";
+        state.products = [...action.payload];
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.status = "fail";
+      })
+      .addCase(deleteProducts.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(deleteProducts.fulfilled, (state, action) => {
+        state.status = "success";
+        // state.products = [...state.products, action.meta.arg]
+        state.products.push(action.meta.arg);
+      })
+      .addCase(deleteProducts.rejected, (state, action) => {
+        state.status = "fail";
+        console.log(state.status);
+      });
+  },
 });
 
 export default ProductSlice.reducer;
 
 export const selectAllProducts = (state) => state.products.products;
+
+const { removeProduct } = ProductSlice.actions;

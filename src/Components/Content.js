@@ -27,7 +27,11 @@ import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchProducts, selectAllProducts } from "../Redux/card/Product";
+import {
+  fetchProducts,
+  selectAllProducts,
+  deleteProducts,
+} from "../Redux/card/Product";
 
 import Modal from "./Modal";
 
@@ -39,7 +43,6 @@ function createData(name, calories, fat, carbs) {
     carbs,
   };
 }
-
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -98,7 +101,6 @@ const headCells = [
     disablePadding: false,
     label: "Title",
   },
-
 ];
 
 const DEFAULT_ORDER = "asc";
@@ -168,7 +170,18 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+  const { numSelected, selected } = props;
+
+  const dispatch = useDispatch();
+
+  const remove = () => {
+    dispatch(deleteProducts(selected));
+    dispatch(fetchProducts());
+  };
+
+  React.useEffect(() => {
+    dispatch(fetchProducts())
+  }, [])
 
   return (
     <Toolbar
@@ -209,7 +222,7 @@ function EnhancedTableToolbar(props) {
       </IconButton>
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={remove}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -229,7 +242,6 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function Content({ value }) {
-
   const [order, setOrder] = React.useState(DEFAULT_ORDER);
   const [orderBy, setOrderBy] = React.useState(DEFAULT_ORDER_BY);
   const [selected, setSelected] = React.useState([]);
@@ -239,17 +251,13 @@ export default function Content({ value }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
   const [paddingHeight, setPaddingHeight] = React.useState(0);
 
-  console.log(selected);
-
   const ArrayFiles = useSelector(selectAllProducts);
 
-  const filter = ArrayFiles.filter((item) => {
-    return item.body.toLowerCase().includes(value.toLowerCase());
-  });
-
+  // const filter = ArrayFiles.filter((item) => {
+  //   return item.body.toLowerCase().includes(value.toLowerCase());
+  // });
 
   const dispatch = useDispatch();
-
 
   // modal
 
@@ -260,8 +268,8 @@ export default function Content({ value }) {
   //
   React.useEffect(() => {
     let rowsOnMount = stableSort(
-      filter,
-      // ArrayFiles,
+      // filter,
+      ArrayFiles,
       getComparator(DEFAULT_ORDER, DEFAULT_ORDER_BY)
     );
 
@@ -273,11 +281,9 @@ export default function Content({ value }) {
     if (ArrayFiles.length === 0) {
       dispatch(fetchProducts());
     }
-    
-    setVisibleRows(rowsOnMount)
-  }, [...filter]);
 
-  console.log(filter);
+    setVisibleRows(rowsOnMount);
+  }, []);
 
   const handleRequestSort = React.useCallback(
     (event, newOrderBy) => {
@@ -287,8 +293,8 @@ export default function Content({ value }) {
       setOrderBy(newOrderBy);
 
       const sortedRows = stableSort(
-        filter,
-        // ArrayFiles,
+        // filter,
+        ArrayFiles,
         getComparator(toggledOrder, newOrderBy)
       );
       const updatedRows = sortedRows.slice(
@@ -303,7 +309,7 @@ export default function Content({ value }) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = filter.map((n) => n.id);
+      const newSelected = ArrayFiles.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -312,7 +318,6 @@ export default function Content({ value }) {
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
-    console.log(name);
     let newSelected = [];
 
     if (selectedIndex === -1) {
@@ -335,7 +340,7 @@ export default function Content({ value }) {
     (event, newPage) => {
       setPage(newPage);
 
-      const sortedRows = stableSort(filter, getComparator(order, orderBy));
+      const sortedRows = stableSort(ArrayFiles, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         newPage * rowsPerPage,
         newPage * rowsPerPage + rowsPerPage
@@ -346,7 +351,7 @@ export default function Content({ value }) {
       // Avoid a layout jump when reaching the last page with empty rows.
       const numEmptyRows =
         newPage > 0
-          ? Math.max(0, (1 + newPage) * rowsPerPage - filter.length)
+          ? Math.max(0, (1 + newPage) * rowsPerPage - ArrayFiles.length)
           : 0;
 
       const newPaddingHeight = (dense ? 33 : 53) * numEmptyRows;
@@ -362,7 +367,7 @@ export default function Content({ value }) {
 
       setPage(0);
 
-      const sortedRows = stableSort(filter, getComparator(order, orderBy));
+      const sortedRows = stableSort(ArrayFiles, getComparator(order, orderBy));
       const updatedRows = sortedRows.slice(
         0 * updatedRowsPerPage,
         0 * updatedRowsPerPage + updatedRowsPerPage
@@ -386,7 +391,10 @@ export default function Content({ value }) {
     <Box>
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
-          <EnhancedTableToolbar numSelected={selected.length} />
+          <EnhancedTableToolbar
+            numSelected={selected.length}
+            selected={selected}
+          />
           <TableContainer>
             <Table
               sx={{ minWidth: 750 }}
@@ -399,12 +407,12 @@ export default function Content({ value }) {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={filter.length}
+                rowCount={ArrayFiles.length}
               />
               <TableBody>
-                {filter
-                  ? filter.map((row, index) => {
-                      const isItemSelected = isSelected(row.name);
+                {ArrayFiles
+                  ? ArrayFiles.map((row, index) => {
+                      const isItemSelected = isSelected(row.id);
                       const labelId = `enhanced-table-checkbox-${index}`;
 
                       return (
@@ -457,7 +465,7 @@ export default function Content({ value }) {
           <TablePagination
             rowsPerPageOptions={[10, 15, 25]}
             component="div"
-            count={filter.length}
+            count={ArrayFiles.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
