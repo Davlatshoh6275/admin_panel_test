@@ -7,7 +7,9 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
-
+import { useState } from "react";
+import { addFile } from "../Redux/card/Product";
+import { useDispatch } from "react-redux";
 const style = {
   position: "absolute",
   top: "50%",
@@ -21,6 +23,30 @@ const style = {
 };
 
 export default function TransitionsModal({ open, handleClose }) {
+
+  const dispatch = useDispatch();
+
+  const [img, setImg] = useState("");
+  const [image, setImage] = useState("");
+
+  const chooseFile = async (event) => {
+    const images = event.target.files[0];
+    setImg(images);
+    if (event.target.files && event.target.files[0]) {
+      setImage(URL.createObjectURL(event.target.files[0]));
+    }
+  };
+
+  const uploadFile = (event) => {
+    const formData = new FormData();
+    formData.append("file", img);
+    dispatch(addFile({ formData}));
+    console.log(formData);
+  };
+
+  console.log(img);
+  console.log(image);
+
   return (
     <div>
       <Modal
@@ -65,7 +91,7 @@ export default function TransitionsModal({ open, handleClose }) {
               }}
             >
               Upload File
-              <input type="file" hidden />
+              <input type="file" hidden onChange={chooseFile} />
             </Button>
             <Box
               sx={{
@@ -87,6 +113,8 @@ export default function TransitionsModal({ open, handleClose }) {
                   "& > :not(style)": { m: 1 },
                   "& > :hover ": { backgroundColor: "grey" },
                 }}
+
+                onClick={uploadFile}
                 endIcon={<SendIcon />}
               >
                 Send

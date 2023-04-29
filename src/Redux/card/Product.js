@@ -20,7 +20,34 @@ export const deleteProducts = createAsyncThunk(
   async (id, { dispatch }) => {
     for (let i of id) {
       const { data } = await axios.delete(`${Base_Url}/${i}`);
-      return removeProduct(data)
+      return removeProduct(data);
+    }
+  }
+);
+
+export const addFile = createAsyncThunk(
+  "file/addFile",
+
+  async function ({ formData }, { rejectWithValue, dispatch }) {
+    var loader;
+
+    try {
+      axios
+        .post(Base_Url, formData, {
+          onUploadProgress: (ProgressEvent) => {
+            loader = Math.round(
+              (ProgressEvent.loaded / ProgressEvent.total) * 100
+            );
+
+            console.log("Upload Progress" + loader + "%");
+          },
+        })
+        .then((res) => {
+          dispatch(addedFile(res.data.body));
+          console.log(res.data);
+        });
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -30,6 +57,8 @@ const ProductSlice = createSlice({
   initialState: {
     products: [],
     status: "idle",
+    file: [],
+    statusFile: null,
   },
 
   reducers: {
@@ -39,9 +68,11 @@ const ProductSlice = createSlice({
           (products) => products._id !== i.id
         );
       }
+    },
 
-      console.log(action.payload);
-      console.log(state);
+    addedFile(state, action) {
+      state.file.push(action.payload);
+      state.statusFile = "success img uploaded";
     },
   },
 
@@ -77,4 +108,4 @@ export default ProductSlice.reducer;
 
 export const selectAllProducts = (state) => state.products.products;
 
-const { removeProduct } = ProductSlice.actions;
+const { removeProduct, addedFile } = ProductSlice.actions;
